@@ -1,0 +1,30 @@
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+<script>
+
+
+
+</script>
+<div><input id="query"></div>
+<button id="click">Click</button>
+<div id="data"></div>
+<script>
+
+  var click = function(){
+    console.log('clicked');
+    $("#data").html("");
+    socket.emit('data', {query: $("#query").val()});
+    }
+  var socket = io.connect('http://'+window.location.hostname);
+  
+  socket.on('news', function (data) {
+    console.log(data);
+    $("#data").append(data);
+    //socket.emit('my other event', { my: 'data' });
+  });
+  
+  
+  $("#click").click(function(){ click() });
+  
+
+</script>
