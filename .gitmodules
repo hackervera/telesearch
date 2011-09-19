@@ -4,3 +4,6 @@
 [submodule "socket.io"]
 	path = socket.io
 	url = ./socket.io
+[submodule "bootstrap"]
+	path = bootstrap
+	url = ./bootstrap
