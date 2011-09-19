@@ -4,144 +4,99 @@ var request = require("request");
 var events = require( "events" );
 var fs = require("fs");
 var _ = require("underscore");
-var endHash = new telehash.Hash("208.68.163.247:42424");
 var hostname = new Date().getTime();
-var s = new telehash.createSwitch(undefined, undefined, undefined);
+var endHash = new telehash.Hash("search");
 var loaded;
 
-var Telenews = function(){
-    var self = this;
-    this.on("seeded", function(){
-        //console.log("seeking");
-        if(!self.query){
-            return
-        }
-        var telex = {
-            "+news": 1,
-            "+host": hostname,
-            "+find": self.query,
-            //"+end": new telehash.Hash("+find").toString()
-        }
-        self.sendTelex(telex);
-        
+var cl = require('./node-clucene').CLucene;
+var lucene = new cl.Lucene();
+var doc = new cl.Document();
+
+
+var Switch = function(){
+  var self=this;
+  self.start();
+  self.host = hostname;
+  var tap = {};
+  tap.is = {};
+  tap.is["+end"] = endHash.toString();
+  tap.has = ["+news"];
+  self.addTap(tap);
+  self.on("+news", function(remoteipp, telex, line) {
+    //console.log("incoming telex: "+ telex);
+    self.emit("telex", telex);
+    if(telex["+find"]){
+      //self.emit("find", telex);
+      lucene.search('./index', telex["+find"], function(err, results, searchTime){
+        //self.emit("results", results);
+        self.sendTelex([
+          {keyName:"+result", keyValue:telex["+find"]},{keyName:"+data", keyValue:results}
+        ]);
+      });
+    }
+    if(telex["+result"]){
+      self.emit("results", telex);
+    }
+  });
+
     
-    });
-
-    events.EventEmitter.call(this);
-    return(this);
 }
+Switch.prototype = new telehash.createSwitch(undefined, undefined, undefined);
 
-Telenews.prototype = new events.EventEmitter();
-
-Telenews.prototype.sendTelex = function(telex){
+Switch.prototype.sendTelex = function(keys){
     var self = this;
-    telehash.keys(s.master)
-    .filter(function(x) { return s.master[x].ipp != s.selfipp; })
+    telehash.keys(self.master)
+    .filter(function(x) { return self.master[x].ipp != self.selfipp; })
     .sort(function(a,b) { return endHash.distanceTo(a) - endHash.distanceTo(b) })
     .slice(0,3)
     .forEach(function(ckey){
-        var target = s.master[ckey].ipp;
+        var target = self.master[ckey].ipp;
         if (!target) {
             return;
         }
         console.log("Target: "+target);
-        telex = _.extend(new telehash.Telex(target), telex);
+        telex = new telehash.Telex(target);
+        telex["+news"] = true;
         telex["+end"] = endHash.toString();
-        telex["+guid"] = new Date().getTime();
-        telex["+time"] = new Date().toString();
+        telex["+host"] = hostname;
+        keys.forEach(function(key){
+          telex[key.keyName] = key.keyValue;
+        });
         telex["_hop"] = 1;
         console.log("Sending telex: "+JSON.stringify(telex));
-        s.send(telex);
+        self.send(telex);
     });
 
     
 }
 
-Telenews.prototype.wait = function(key, callback){
-    var self = this;
-    console.log("waiting on key: "+key);
-    if(!loaded){
-        var tap = {};
-        tap.is = {};
-        tap.is["+end"] = endHash.toString();
-        tap.has = [key];
-        s.addTap(tap);
-        loaded = true;
-    }
-    s.on(key, function(remoteipp, telex, line) {
-        telex["remoteipp"] = remoteipp;
-        callback(telex);
-    });
 
-
+var Query = function(){}
+Query.prototype.find = function(query){
+  var self = this;
+  self.host = hostname;
+  self.callback = function(){
+    self.switch.sendTelex([{keyName:"+find", keyValue: query}]);
+  }
+  setInterval(self.callback, 10000);
+}
+Query.prototype.stop = function(){
+  var self = this;
+  clearInterval(self.callback);
+}
+Query.prototype.include = function(host){
+  var self = this;
+  var ret;
+  if (_.include(self.hosts, host)){
+    ret = true
+  }
+  else { ret = false }
+  
+  return ret;
 }
 
-Telenews.prototype.findData = function(query){
-    console.log("FINDING "+query);
-    var self = this;
-    try {
-        var data = JSON.parse(fs.readFileSync(self.serve, 'utf8'));
-        var message = data[query];
-    }
-    catch(e){
-        console.log("returning "+e);
-        return;
-    }
-    if(message == undefined){
-        return;
-    }
-    
-    var telex = {
-        "+news": 1,
-        "+result": query,
-        "+host": hostname,
-        "+message": message
-    }
-    self.sendTelex(telex);
-}
-
-
-Telenews.prototype.seeded = function(self){  
-    //console.log("called seeded callback");
-    self.emit("seeded");
- 
-}
-
-Telenews.prototype.guids = [];
-
-
-Telenews.prototype.start = function(){
-    var self = this;
-    if(!loaded){
-        s.start(function(){  });
-    }
-
-
-}
-
-
-Telenews.prototype.waitNews = function(){
-    var self = this;
-    this.wait("+news", function(telex){
-        console.log(telex);
-    
-        if(telex["+find"] && telex["+host"] != hostname){
-            self.findData(telex["+find"]);
-        }
-        if(telex["+result"]){
-            var guid = telex["+host"];
-            if(telex["+result"] == self.query){
-               if(!(_.include(self.guids,guid))){
-                    self.emit("result", telex);
-                    self.guids.push(guid);
-                }
-            }
-        }
-    });
-
-}
-
-exports.Telenews = Telenews;
+exports.Query = Query;
+exports.Switch = Switch;
 
 
 

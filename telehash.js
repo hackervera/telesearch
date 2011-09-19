@@ -199,9 +199,8 @@ exports.createSwitch = function(bindPort, bootHost, bootPort) {
  * The switch will start listening on its bind port 
  * and start the bootstrap process.
  */
-Switch.prototype.start = function(callback) {
+Switch.prototype.start = function() {
     var self = this;
-    self.callback = callback;
     self.server.bind(self.bindPort);
 }
 
@@ -306,7 +305,6 @@ Switch.prototype.completeBootstrap = function(remoteipp, telex) {
             
             self.scanlines();
             self.taptap();
-            self.callback();
             
             
         }

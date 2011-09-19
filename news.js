@@ -1,80 +1,87 @@
 var news = require("./telenews");
+var express = require("express");
 
-
-
-
-var database = process.argv[2];
+var port = process.argv[2];
 
 var web;
 
+var app = express.createServer()
+  , io = require('./socket.io').listen(app)
+  , fs = require('fs');
+  
+var s = new news.Switch();
+s.on("telex", function(telex){
+  console.log("Incoming telex: "+ JSON.stringify(telex));
+});
+
+s.on("find", function(telex){
+  console.log("Find request issued from: "+ telex["+host"]);
+});
 
 
 
 
-var app = require('http').createServer(handler)
-  , io = require('socket.io').listen(app)
-  , fs = require('fs')
-
-app.listen(0);
+app.listen(port || 8080);
 setInterval(function(){
 
     console.log("PORT: "+app.address().port);
 }, 10000);
 
-function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
-    
-    
+app.use(express.static(__dirname + '/public'));
 
-    
-    
-
-    res.writeHead(200);
-    res.end(data);
-  });
-}
 
 io.sockets.on('connection', function (socket) {
+  console.log("OPENING SOCKET");
+  //console.log(socket);
+  var query = new news.Query();
 
-    var telenews = new news.Telenews();
-    telenews.serve = database;
-    telenews.start();
-    telenews.waitNews();
+  query.switch = s;
+  query.hosts = [];
     
-    telenews.on("result", function(result){
-        console.log(result);
-        result["+message"].forEach(function(message){
-            
-            socket.emit('news', "<p>"+message+"</p>");
-        });
-    });
-    
-   var interval = setInterval(function(){
-        telenews.emit("seeded");
-    }, 10000);
-
-    socket.on('disconnect', function(){
-        clearInterval(interval);
-    });
-    
-    
-  socket.emit('news', { hello: 'world' });
+  //websocket event trigger  
+  //socket.emit('news', { hello: 'world' });
   socket.on('data', function (data) {
     console.log(data);
     if(data.query){
-        telenews.query = data.query;
-        telenews.guids = [];
+    
+      query.find(data.query); 
+      //socket.emit("news", "wtf");
+      s.on("results", function(telex){
+        if(telex["+result"] == data.query){
+          var host = parseInt(telex["+host"]);
+          if(query.include(host) == false && telex["+host"] != query.host){
+            console.log("HOSTS: " + query.hosts);
+            console.log("FOUND RESULTS: " + JSON.stringify(telex["+data"]));
+            socket.emit("news", telex);
+            query.hosts.push(host);
+          }  
+        }
+      });
+     
         
     }
   });
   
+  socket.on('id', function(data){
+    query.id = data;
+  });
+  
+  
+  
+  //var queryString = "description:partyin";
+
+
+  socket.on('disconnect', function(){
+    console.log("CLOSING SOCKET");
+    query.stop();
+  });
+  
   
 });
+
+
+
+
 
 
 
