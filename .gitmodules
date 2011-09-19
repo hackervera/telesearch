@@ -1,0 +1,6 @@
+[submodule "node-clucene"]
+	path = node-clucene
+	url = ./node-clucene
+[submodule "socket.io"]
+	path = socket.io
+	url = ./socket.io
