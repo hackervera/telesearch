@@ -37,6 +37,21 @@ io.sockets.on('connection', function (socket) {
     
   //websocket event trigger  
   //socket.emit('news', { hello: 'world' });
+  
+  var sendback = function(telex, query, data){
+    if(telex["+result"] == data.query){
+      var host = parseInt(telex["+host"]);
+      if(query.include(host) == false && telex["+host"] != query.host){
+        console.log("HOSTS: " + query.hosts);
+        console.log("FOUND RESULTS: " + JSON.stringify(telex["+data"]));
+        if(telex["+data"] != null){
+          socket.emit("news", telex);
+        }
+        query.hosts.push(host);
+      }
+    }
+  }
+  
   socket.on('data', function (data) {
     console.log(data);
     if(data.query){
@@ -49,15 +64,7 @@ io.sockets.on('connection', function (socket) {
       query.find(data.query); 
       //socket.emit("news", "wtf");
       s.on("results", function(telex){
-        if(telex["+result"] == data.query){
-          var host = parseInt(telex["+host"]);
-          if(query.include(host) == false && telex["+host"] != query.host){
-            console.log("HOSTS: " + query.hosts);
-            console.log("FOUND RESULTS: " + JSON.stringify(telex["+data"]));
-            socket.emit("news", telex);
-            query.hosts.push(host);
-          }  
-        }
+        sendback(telex, query, data);
       });
      
         
