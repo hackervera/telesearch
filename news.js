@@ -33,7 +33,7 @@ app.use(express.static(__dirname + '/public'));
 io.sockets.on('connection', function (socket) {
   console.log("OPENING SOCKET");
   //console.log(socket);
-
+  var queries = [];
     
   //websocket event trigger  
   //socket.emit('news', { hello: 'world' });
@@ -56,7 +56,7 @@ io.sockets.on('connection', function (socket) {
     console.log(data);
     if(data.query){
       var query = new news.Query();
-  
+      queries.push(query);
       query.switch = s;
       query.hosts = [];  
       
@@ -83,6 +83,10 @@ io.sockets.on('connection', function (socket) {
   socket.on('disconnect', function(){
     console.log("CLOSING SOCKET");
     //query.stop();
+    queries.forEach(function(query){
+      console.log("Stopping " + JSON.stringify(query));
+      query.stop();
+    });
   });
   
   

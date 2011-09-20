@@ -79,11 +79,11 @@ Query.prototype.find = function(query){
   self.callback = function(){
     self.switch.sendTelex([{keyName:"+find", keyValue: query}]);
   }
-  setInterval(self.callback, 10000);
+  self.timerId = setInterval(self.callback, 10000);
 }
 Query.prototype.stop = function(){
   var self = this;
-  clearInterval(self.callback);
+  clearInterval(self.timerId);
 }
 Query.prototype.include = function(host){
   var self = this;

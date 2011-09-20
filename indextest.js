@@ -32,3 +32,6 @@ addEvent('friday party', '123 fun fun fun lane', 'partyin, partyin, partyin, yea
 addEvent('pool party','tylers house', 'bring your own floaty');
 
 
+addEvent('tylers birthday', 'tylers house', 'come celebrate tylers birthday. be sure to bring cake beotches');
+
+
