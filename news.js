@@ -55,6 +55,11 @@ io.sockets.on('connection', function (socket) {
   socket.on('data', function (data) {
     console.log(data);
     if(data.query){
+    
+      queries.forEach(function(query){
+        console.log("Stopping " + JSON.stringify(query));
+        query.stop();
+      }); 
       var query = new news.Query();
       queries.push(query);
       query.switch = s;
@@ -73,6 +78,20 @@ io.sockets.on('connection', function (socket) {
   
   socket.on('id', function(data){
     //query.id = data;
+  });
+  
+  
+  socket.on('save', function(data){
+    var cl = require('./node-clucene').CLucene;
+    var doc = new cl.Document();
+    var lucene = new cl.Lucene();
+    console.log(JSON.stringify(data));
+    doc.addField("name", data["name"], cl.STORE_YES|cl.INDEX_TOKENIZED);
+    doc.addField("_type",data["_type"], cl.STORE_YES|cl.INDEX_UNTOKENIZED);
+    doc.addField("description", data["description"], cl.STORE_YES|cl.INDEX_TOKENIZED);
+    lucene.addDocument(data["name"], doc, './index', function(err, indexTime) {});
+        
+    console.log("save called:" + data);
   });
   
   

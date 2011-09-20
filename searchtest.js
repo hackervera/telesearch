@@ -11,5 +11,5 @@ function find(query){
 }
 
 
-find('all');
+find('_type:nerdout');
 

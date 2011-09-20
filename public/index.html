@@ -20,6 +20,10 @@
       #loader {
         display: none;
       }
+      #alert{
+        text-align:center;
+        display:none;
+      }
     </style>
 
     <!-- Le fav and touch icons -->
@@ -30,6 +34,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
     </script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/bootstrap-alerts.js"></script>
   </head>
 
   <body>
@@ -69,18 +74,17 @@
             <form>
               <fieldset>
                 <label for="event-name">Event Name</label>
-                
-                
                 <div class="input">
                   <input type="text" data-name="name" id="event-name" class="query">
                 </div>
-                <label for="event-address">Event Address</label>
+                <label for="event-type">Event type</label>
                 <div class="input">
-                  <input type="text" data-name="address" id="event-address" class="address query">
+                  <input type="text" data-name="_type" id="event-type" class="query">
                 </div>
+
                 <label for="event-description">Event Description</label>
                 <div class="input">
-                  <input type="text" data-name="description" id="event-description" class="query">
+                  <textarea data-name="description" id="event-description" class="query xxlarge"></textarea>
                 </div>
                 <div class="actions">
                   <button type="submit" class="btn" id="search">Search</button>
@@ -97,6 +101,45 @@
         </div>
         <div class="row">
           <div class="span16 well" id="result">
+          </div>
+        </div>
+      </section>
+      
+      <section id="add">
+        <div class="page-header">
+          <h1>Add your own event!</h1>
+        </div>
+        <div class="row">
+          <div class="span16">
+            <form>
+              <fieldset>
+                <label for="event-name-save">Event Name</label>
+                <div class="input">
+                  <input type="text" data-name="name" id="event-name-save" class="save">
+                </div>
+                <label for="event-type-save">Event type</label>
+                <div class="input">
+                  <input type="text" data-name="_type" id="event-type-save" class="save">
+                </div>
+
+                <label for="event-description-save">Event Description</label>
+                <div class="input">
+                  <textarea data-name="description" id="event-description-save" class="save xxlarge"></textarea>
+                </div>
+                <div class="row">&nbsp;</div>
+                <div class="row">
+                  <div class="span5 offset4">
+                    <div data-alert="alert" class="alert-message" id="alert">
+                      <a class="close" href="#">&times;</a>
+                      <p>Saved</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="actions">
+                  <button type="submit" class="btn" id="save">Save</button>
+                </div>
+              </fieldset>
+            </form>
           </div>
         </div>
       </section>
@@ -152,13 +195,28 @@
         var output = "";
         $(data["+data"]).each(function(){
           output += "<p>Name: " + this.name + "<br>"+
-          "Address: " + this.address + "<br>" +
+          "Type: " + this["_type"] + "<br>" +
           "Description: " + this.description + "<br>"+
           "Score: "+ this.score + "<br>"+
           "From host: "+ data["+host"] + "</p>";
         });
         $("#result").append(output);
       });
+      
+      
+      $("#save").click(function(e){
+        e.preventDefault();
+        $("#alert").show();
+        var output = {};
+        $(".save").each(function(){
+          output[$(this).data("name")] = $(this).val();
+          $(this).val("");
+        });
+        socket.emit("save", output);
+      });
+      
+      
+
       
     </script>
   </body>
