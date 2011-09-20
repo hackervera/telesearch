@@ -138,7 +138,14 @@
       
       socket.on('news', function (data) {
         console.log(data);
-        $("#result").append("<p>"+JSON.stringify(data["+data"])+"</p>");
+        var output = "";
+        $(data["+data"]).each(function(){
+          output += "<p>Name: " + this.name + "<br>"+
+          "Address: " + this.address + "<br>" +
+          "Description: " + this.description + "<br>"+
+          "From host: "+ data["+host"] + "</p>";
+        });
+        $("#result").append(output);
       });
     </script>
   </body>

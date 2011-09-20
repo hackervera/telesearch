@@ -23,6 +23,7 @@ var Switch = function(){
   tap.has = ["+news"];
   self.addTap(tap);
   self.on("+news", function(remoteipp, telex, line) {
+    self.host = telex["_to"];
     //console.log("incoming telex: "+ telex);
     self.emit("telex", telex);
     if(telex["+find"]){
@@ -58,7 +59,7 @@ Switch.prototype.sendTelex = function(keys){
         telex = new telehash.Telex(target);
         telex["+news"] = true;
         telex["+end"] = endHash.toString();
-        telex["+host"] = hostname;
+        telex["+host"] = self.host || hostname;
         keys.forEach(function(key){
           telex[key.keyName] = key.keyValue;
         });
