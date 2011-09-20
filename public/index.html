@@ -57,14 +57,27 @@
       <section id="entry">
         <div class="page-header">
           <h1>Search for data on Telehash</h1>
+        
         </div>
         <div class="row">
+          
           <div class="span16">
+            <h3>This will let you search event data that people have entered across the network.</h3>
             <form>
               <fieldset>
-                <label for="query">Query</label>
+                <label for="event-name">Event Name</label>
+                
+                
                 <div class="input">
-                  <input type="text" id="query">
+                  <input type="text" data-name="name" id="event-name" class="query">
+                </div>
+                <label for="event-address">Event Address</label>
+                <div class="input">
+                  <input type="text" data-name="address" id="event-address" class="address query">
+                </div>
+                <label for="event-description">Event Description</label>
+                <div class="input">
+                  <input type="text" data-name="description" id="event-description" class="query">
                 </div>
                 <div class="actions">
                   <button type="submit" class="btn" id="search">Search</button>
@@ -118,7 +131,9 @@
       $("#search").click(function(e){
         e.preventDefault();
         //$("#result").html("Aloha");
-        socket.emit("data", {query: $("#query").val()});
+        $(".query").each(function(){
+          socket.emit("data", {query: $(this).data("name")+":"+$(this).val()});
+        });
       });
       
       socket.on('news', function (data) {
