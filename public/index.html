@@ -17,6 +17,9 @@
       body {
         padding-top: 60px;
       }
+      #loader {
+        display: none;
+      }
     </style>
 
     <!-- Le fav and touch icons -->
@@ -49,14 +52,14 @@
 
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
-        <h1>Find data searching around the edge of the network!</h1>
-        <p>My goal with this project is to use telehash in conjunction with node-clucene to index data on your localhost. After this data is indexed, this app will allow you to share that data on the telehash network.</p>
+        <h1>Find events by searching around the edge of the network!</h1>
+        <p>My goal with this project is to use telehash in conjunction with node-clucene to index event data on your localhost. After this data is indexed, this app will allow you to share that data on the telehash network.</p>
         <p><a class="btn primary large">Learn more &raquo;</a></p>
       </div>
       
       <section id="entry">
         <div class="page-header">
-          <h1>Search for data on Telehash</h1>
+          <h1>Search for events on Telehash</h1>
         
         </div>
         <div class="row">
@@ -90,7 +93,7 @@
       
       <section id="results">
         <div class="page-header">
-          <h1>Search Results</h1>
+          <h1>Search Results <img src="ajax-loader.gif" id="loader"></h1>
         </div>
         <div class="row">
           <div class="span16 well" id="result">
@@ -125,15 +128,22 @@
 
     </div> <!-- /container -->
     <script>
+
       var browserId = new Date();
       var socket = io.connect('http://'+window.location.hostname);
-      socket.emit("id", browserId);
+     
       $("#search").click(function(e){
+        $("#loader").toggle();
         e.preventDefault();
         //$("#result").html("Aloha");
         $(".query").each(function(){
-          socket.emit("data", {query: $(this).data("name")+":"+$(this).val()});
+          if($(this).val().length > 1){
+            socket.emit("data", {query: $(this).data("name")+":"+$(this).val()});
+          }
+          $(this).val("");
         });
+   
+          
       });
       
       socket.on('news', function (data) {
@@ -147,6 +157,7 @@
         });
         $("#result").append(output);
       });
+      
     </script>
   </body>
 </html>
