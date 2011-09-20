@@ -82,7 +82,7 @@ io.sockets.on('connection', function (socket) {
   
   
   socket.on('save', function(data){
-    var cl = require('./node-clucene').CLucene;
+    var cl = require('clucene').CLucene;
     var doc = new cl.Document();
     var lucene = new cl.Lucene();
     console.log(JSON.stringify(data));
