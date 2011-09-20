@@ -11,5 +11,5 @@ function find(query){
 }
 
 
-find('name:party*');
+find('all');
 

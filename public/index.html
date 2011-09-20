@@ -53,7 +53,7 @@
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
         <h1>Find events by searching around the edge of the network!</h1>
-        <p>My goal with this project is to use telehash in conjunction with node-clucene to index event data on your localhost. After this data is indexed, this app will allow you to share that data on the telehash network.</p>
+        <p>My goal with this project is to use <a href="http://www.telehash.org">telehash</a> in conjunction with <a href="https://github.com/erictj/node-clucene">node-clucene</a> to index event data on your localhost. After this data is indexed, this app will allow you to share that data on the telehash network.</p>
         <p><a class="btn primary large">Learn more &raquo;</a></p>
       </div>
       
@@ -133,7 +133,8 @@
       var socket = io.connect('http://'+window.location.hostname);
      
       $("#search").click(function(e){
-        $("#loader").toggle();
+        $("#result").html("");
+        $("#loader").show();
         e.preventDefault();
         //$("#result").html("Aloha");
         $(".query").each(function(){
