@@ -1,0 +1,11 @@
+{
+  "name": "telesearch",
+  "version":"0.0.1",
+  "dependencies": {
+          "underscore": "1.1.7",
+          "clucene": "0.1.4",
+          "express": "2.4.6"
+        
+  }
+
+}
