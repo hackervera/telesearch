@@ -21,7 +21,7 @@ socket.io is vendored for now until they push their bugfix for latest chrome bui
 'node news.js [optional port number, defaults to 8080]'
 
 
-visit http://locahost:8080
+visit http://localhost:8080
 
 
 
