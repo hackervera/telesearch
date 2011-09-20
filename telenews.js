@@ -8,7 +8,7 @@ var hostname = new Date().getTime();
 var endHash = new telehash.Hash("search");
 var loaded;
 
-var cl = require('./node-clucene').CLucene;
+var cl = require('clucene').CLucene;
 var lucene = new cl.Lucene();
 var doc = new cl.Document();
 
