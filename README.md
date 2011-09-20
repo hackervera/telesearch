@@ -1,12 +1,14 @@
 clone this repo
 
-socket.io is vendored for now until they push their bugfix for latest chrome build to npm module
+
 
 
 run 'sudo npm install' in cloned directory
 
 
 'cd socket.io'
+
+socket.io is vendored for now until they push their bugfix for latest chrome build to npm module
 
 
 'sudo npm install' in that folder also
